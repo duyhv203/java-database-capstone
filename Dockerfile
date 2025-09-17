@@ -1,14 +1,26 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-jdk-slim
+# ----------- Stage 1: Build -----------
+FROM maven:3.8.5-openjdk-17-slim AS builder
 
-# Set the working directory inside the container
+# Set working directory inside container
 WORKDIR /app
 
-# Copy the jar file into the container
-COPY target/*.jar app.jar
+# Copy all files from project to working directory
+COPY . .
 
-# Expose the port the app runs on
+# Run Maven to package the application (skip tests to save time)
+RUN mvn clean package -DskipTests
+
+# ----------- Stage 2: Runtime -----------
+FROM openjdk:17-jdk-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy only the built JAR from the previous stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Expose the port the app will run on
 EXPOSE 8080
 
-# Run the jar file
+# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
