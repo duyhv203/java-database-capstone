@@ -1,1 +1,37 @@
 
+package com.project.back_end.controllers;
+
+import com.project.back_end.models.Doctor;
+import com.project.back_end.repositories.DoctorRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/doctors")
+public class DoctorController {
+
+    @Autowired
+    private DoctorRepository doctorRepository;
+
+    @GetMapping
+    public List<Doctor> getAllDoctors() {
+        return doctorRepository.findAll();
+    }
+
+    @PostMapping
+    public Doctor createDoctor(@RequestBody Doctor doctor) {
+        return doctorRepository.save(doctor);
+    }
+
+    @GetMapping("/{id}")
+    public Doctor getDoctorById(@PathVariable Long id) {
+        return doctorRepository.findById(id).orElse(null);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteDoctor(@PathVariable Long id) {
+        doctorRepository.deleteById(id);
+    }
+}
